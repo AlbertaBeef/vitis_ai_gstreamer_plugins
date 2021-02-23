@@ -10,7 +10,9 @@ For a detailed description on how to create gstreamer plug-ins and build on host
    
 Instructions for re-building the plug-ins on the embeded platforms:
 
+   ```
    dnf install gstreamer-dev
    cd vitis_ai_gstreamer_plugings/vaifacedetect
    make
    ...
+   ```
