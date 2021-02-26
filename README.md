@@ -12,7 +12,7 @@ Instructions for re-building the plug-ins on the embeded platforms:
 
    ```
    dnf install gstreamer-dev
-   cd vitis_ai_gstreamer_plugings/vaifacedetect
+   cd vitis_ai_gstreamer_plugins/vaifacedetect
    make
    ...
    ```
