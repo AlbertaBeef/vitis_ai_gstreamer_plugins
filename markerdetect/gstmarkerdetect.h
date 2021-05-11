@@ -38,6 +38,11 @@ struct _GstMarkerDetect
 {
   GstVideoFilter base_markerdetect;
 
+  unsigned iterations;
+  
+  gchar *wb_script;
+  unsigned wb_skip_frames;
+  unsigned wb_frame_count; 
 };
 
 struct _GstMarkerDetectClass

@@ -72,7 +72,9 @@ static GstFlowReturn gst_markerdetect_transform_frame_ip (GstVideoFilter * filte
 
 enum
 {
-  PROP_0
+  PROP_0,
+  PROP_WB_SCRIPT,
+  PROP_WB_SKIP_FRAMES
 };
 
 /* pad templates */
@@ -116,6 +118,19 @@ gst_markerdetect_class_init (GstMarkerDetectClass * klass)
 
   gobject_class->set_property = gst_markerdetect_set_property;
   gobject_class->get_property = gst_markerdetect_get_property;
+  
+  g_object_class_install_property (gobject_class, PROP_WB_SCRIPT,
+      g_param_spec_string ("wb-script", "wb-script",
+          "White Balance script.", 
+          NULL,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
+
+  g_object_class_install_property (gobject_class, PROP_WB_SKIP_FRAMES,
+      g_param_spec_int ("wb-skip-frames", "wb-skip-frames",
+          "White Balance skip frames.", 0, G_MAXINT,
+          0,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
+            
   gobject_class->dispose = gst_markerdetect_dispose;
   gobject_class->finalize = gst_markerdetect_finalize;
   base_transform_class->start = GST_DEBUG_FUNCPTR (gst_markerdetect_start);
@@ -128,6 +143,10 @@ gst_markerdetect_class_init (GstMarkerDetectClass * klass)
 static void
 gst_markerdetect_init (GstMarkerDetect *markerdetect)
 {
+   markerdetect->iterations = 0;
+   markerdetect->wb_script = NULL;
+   markerdetect->wb_skip_frames = 0;
+   markerdetect->wb_frame_count = 0;
 }
 
 void
@@ -139,6 +158,13 @@ gst_markerdetect_set_property (GObject * object, guint property_id,
   GST_DEBUG_OBJECT (markerdetect, "set_property");
 
   switch (property_id) {
+    case PROP_WB_SCRIPT:
+      g_free (markerdetect->wb_script);
+      markerdetect->wb_script = g_value_dup_string (value);
+      break;
+    case PROP_WB_SKIP_FRAMES:
+      markerdetect->wb_skip_frames = g_value_get_int (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -154,6 +180,12 @@ gst_markerdetect_get_property (GObject * object, guint property_id,
   GST_DEBUG_OBJECT (markerdetect, "get_property");
 
   switch (property_id) {
+    case PROP_WB_SCRIPT:
+      g_value_set_string (value, markerdetect->wb_script);
+      break;
+    case PROP_WB_SKIP_FRAMES:
+      g_value_set_int (value, markerdetect->wb_skip_frames);
+      break;      
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -231,6 +263,9 @@ static GstFlowReturn
 gst_markerdetect_transform_frame_ip (GstVideoFilter * filter, GstVideoFrame * frame)
 {
   GstMarkerDetect *markerdetect = GST_MARKERDETECT (filter);
+
+  markerdetect->iterations++;
+  markerdetect->wb_frame_count++;
 
   /* Setup an OpenCV Mat with the frame data */
   int width = GST_VIDEO_FRAME_WIDTH(frame);
@@ -388,6 +423,21 @@ gst_markerdetect_transform_frame_ip (GstVideoFilter * filter, GstVideoFrame * fr
       }
       cv::fillConvexPoly(img, pts_dst, 4, cv::Scalar(0), cv::LINE_AA);
       img = img + img_temp;
+      
+      // Call White Balance Script (if specified)
+      if ( markerdetect->wb_script != NULL )
+      { 
+        if ( (markerdetect->iterations > 50) && (markerdetect->wb_frame_count > markerdetect->wb_skip_frames) )
+        {
+          char szCommand[256];
+          sprintf(szCommand,"%s %d %d %d\n", markerdetect->wb_script, int(b_mean), int(g_mean), int(r_mean) );
+          //printf(szCommand);
+          system(szCommand);
+          
+          markerdetect->wb_frame_count = 0;
+        }
+      }
+
     }
 
     // Chart 3 - Histogram
