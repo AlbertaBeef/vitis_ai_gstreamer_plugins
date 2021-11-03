@@ -24,7 +24,8 @@ CFLAGS  := -O2 -Wall -Wpointer-arith -Wno-unused-function -ffast-math -fPIC -sha
 CFLAGS  += --sysroot=$(SYSROOT) 
 CFLAGS  += -I$(SYSROOT)/usr/include/gstreamer-1.0 -I$(SYSROOT)/usr/lib/gstreamer-1.0/include
 CFLAGS  += -I$(SYSROOT)/usr/include/glib-2.0 -I$(SYSROOT)/usr/lib/glib-2.0/include
-CFLAGS  += -I../common
+CFLAGS  += -std=c++17
+CFLAGS  += -I$(SYSROOT)/usr/include/opencv4
 LDFLAGS := -lpthread -lrt -ldl -lcrypt -lstdc++ -lglog
 LDFLAGS += -lgstbase-1.0 -lgstvideo-1.0 
 LDFLAGS += -lopencv_core -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_ximgproc -lopencv_aruco 

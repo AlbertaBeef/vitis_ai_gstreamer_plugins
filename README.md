@@ -1,8 +1,8 @@
 # Vitis-AI : GStreamer Plug-Ins
 
-These gstreamer plug-ins examples are meant to be used with the Vitis-AI 1.3 designs.
+These gstreamer plug-ins examples are meant to be used with the Vitis-AI 1.4 designs.
     
-   [Hackster - Vitis-AI 1.3 Flow for Avnet Platforms](http://avnet.me/vitis-ai-1.3-project)
+   [Hackster - Vitis-AI 1.4 Flow for Avnet Platforms](http://avnet.me/vitis-ai-1.4-project)
     
 For a detailed description on how to create gstreamer plug-ins and build on host machine:
 
